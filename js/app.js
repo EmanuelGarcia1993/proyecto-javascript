@@ -66,27 +66,97 @@ arreglo_de_clientes.push(new Cliente(3, "Monica Centeno", "24 de noviembre 2555"
 
 // FUNCIONES
 // Validacion de datos
-function validarOpcion(valor, cant_opcion) {
+function validarOpcion(funcion, cant_opcion) {
     let estado = false;
+    let valor;
 
-    if ( valor === null ) {
-        alert("Debe elejir una opcion para continuar");
-    } else {
-        valor = Number(valor)
-    }
-    if ( isNaN(valor) ) {
-        alert("Ingreso invalido, por favor ingrese un numero");
-    } else if ( valor < 0 || valor >= cant_opcion  ){
-        alert("Ingrese una opcion dentro del rango");
-    } else {
-        estado = true;
-    }
+    do{
+        // Se guarda el retorno de la funcion pasada
+        valor = funcion();
 
-    console.log(estado);
-    return estado;
+        // Se comprueba de que ingrese un valor y no el cancelar del prompt
+        if ( valor === null ){
+            alert("Debe elejir una opcion para continuar");
+        } else {
+            valor = Number(valor)
+            // Se comprueba de que sea un numero
+            if ( isNaN(valor) ){
+                alert("Ingreso invalido, por favor ingrese un numero");
+            // Se comprueba de que este dentro del rango de opciones
+            } else if ( valor < 0 || valor >= cant_opcion  ){
+                alert("Ingrese una opcion dentro del rango");
+            } else {
+                estado = true;
+            }
+        }
+        
+    } while (!estado);
+    
+    console.log(valor);
+    return valor;
 }
 
-// Interaccion
+function validacionString(mensaje) {
+    let estado = false;
+    let valor;
+    
+    
+    do{
+        valor = prompt(mensaje)
+        // Se comprueba de que no sea un numero
+        if ( valor === null ) {
+            return valor;
+        } else if ( !isNaN(valor) ){
+            alert("Ingreso invalido, por favor ingrese un nombre");
+        } else {
+            estado = true;
+        }
+    } while ( !estado );
+    
+    console.log(valor);
+    return valor;
+}
+
+
+// Clientes
+// Agregar cliente
+function agregarCliente() {
+    let nombre;
+    let direccion;
+
+    nombre = validacionString("Ingrese el nombre:");
+    if( nombre != null ){
+        direccion = validacionString("Ingrese la direccion:");
+        if( direccion === null ){
+            return interaccionCliente();
+        }
+    } else {
+        return interaccionCliente();
+    }
+
+    arreglo_de_clientes.push( new Cliente( Number(arreglo_de_clientes.length) + 1, nombre, direccion, 0 ))
+
+    console.log(`El cliente se agrego con exito`);
+    console.log(arreglo_de_clientes[arreglo_de_clientes.length - 1]);
+
+    return interaccionCliente();
+}
+
+// Eliminar cliente
+function eliminarCliente() {
+    console.log(`ID  |  Nombre`)
+
+    arreglo_de_clientes.forEach(cliente => {
+        console.log(`${cliente.id}   |  ${cliente.nombre}`);
+    });
+
+    
+
+    return interaccionCliente();
+}
+
+
+// MENUS
 function menuPrincipal() {
     return prompt(`
         Elija una opcion:
@@ -95,6 +165,8 @@ function menuPrincipal() {
         2 - Pedido
         3 - Bagues
         0 - Salir`);
+
+
 }
 
 function menuCliente() {
@@ -103,7 +175,7 @@ function menuCliente() {
 
         1 - Agregar nuevo cliente
         2 - Eliminar un cliente
-        3 - Ver info de cliente
+        3 - Ver lista de cliente
         4 - Ingresar un pago
         5 - Ver cuenta corriente
         0 - Volver al menu anterior`);
@@ -132,30 +204,61 @@ function menuBagues() {
 }
 
 
+// INTERACCIONES
 // Inicio de programa
 function inicio () {
-    let opcion;
-    let estado;
-    
-    do {
-        opcion = menuPrincipal();
-        estado = validarOpcion(opcion, 4);
-    } while (!estado);
+    let opcion = validarOpcion(menuPrincipal, 4);
 
     console.log(opcion);
+    console.log("4");
 
     switch (opcion) {
-        case "1":
-            menuCliente()
+        case 1:
+            interaccionCliente();
             break;
-        case "2":
-            console.log("vamos bien");
+
+        case 2:
+            menuPedidos();
             break;
-        case "3":
-            console.log("vamos bien");
+
+        case 3:
+            menuBagues();
             break;
-        case "0":
+
+        case 0:
             break;
+    }
+}
+
+function interaccionCliente() {
+    let opcion = validarOpcion(menuCliente, 5);
+
+    console.log(opcion);
+    switch (opcion) {
+        case 1:
+            agregarCliente();
+            break;
+
+        case 2:
+            eliminarCliente();
+            break;
+
+        case 3:
+            infoCliente();
+            break;
+
+        case 4:
+            ingresaPago();
+            break;
+
+        case 5:
+            ccCliente();
+            break;
+
+        case 0:
+            inicio();
+            break;
+
     }
 }
 
