@@ -89,7 +89,7 @@ function validarOpcion(funcion, cant_opcion) {
             if ( isNaN(valor) ){
                 alert("Ingreso invalido, por favor ingrese un numero");
             // Se comprueba de que este dentro del rango de opciones
-            } else if ( valor < 0 || valor >= cant_opcion  ){
+            } else if ( valor < 0 || valor > cant_opcion  ){
                 alert("Ingrese una opcion dentro del rango");
             } else {
                 estado = true;
@@ -158,10 +158,14 @@ function agregarCliente() {
         return interaccionCliente();
     }
 
-    arreglo_de_clientes.push( new Cliente( Number(arreglo_de_clientes.length) + 1, nombre, direccion, 0 ))
-
-    console.log(`El cliente se agrego con exito`);
-    console.log(arreglo_de_clientes[arreglo_de_clientes.length - 1]);
+    if( confirm(`Esta seguro que desea agregar a ${nombre} con direccion en ${direccion}`) ){
+        arreglo_de_clientes.push( new Cliente( Number(arreglo_de_clientes.length) + 1, nombre, direccion, 0 ))
+    
+        console.log(`El cliente se agrego con exito`);
+        console.log(arreglo_de_clientes[arreglo_de_clientes.length - 1]);
+    } else {
+        alert("No se ha agreagado ningun cliente nuevo");
+    };
 
     return interaccionCliente();
 }
@@ -184,21 +188,28 @@ function eliminarCliente() {
         return interaccionCliente();
     }
 
-    nuevo_array = arreglo_de_clientes.filter(arreglo => arreglo.id !== id_cliente);
-/*     console.log(nuevo_array); */
-    cliente_eliminado = arreglo_de_clientes.filter(arreglo => arreglo.id === id_cliente);
+    let cliente_selec = arreglo_de_clientes.find( cliente => cliente.id === id_cliente );
 
-    arreglo_de_clientes.length = 0;
+    if (confirm(`Esta segur@ que decea eliminar a: ${cliente_selec.infoDeCliente()}`)) {
+        nuevo_array = arreglo_de_clientes.filter(arreglo => arreglo.id !== id_cliente);
+    /*     console.log(nuevo_array); */
+        cliente_eliminado = arreglo_de_clientes.filter(arreglo => arreglo.id === id_cliente);
     
-    nuevo_array.forEach(cliente => {
-        arreglo_de_clientes.push(cliente)
-    });
+        arreglo_de_clientes.length = 0;
+        
+        nuevo_array.forEach(cliente => {
+            arreglo_de_clientes.push(cliente)
+        });
+    
+        historial_eliminados.push(cliente_eliminado);
+        // spread (...): convierte el arreglo en elementos individuales
+        /* arreglo_de_clientes.push(...nuevo_array); */
+    
+        console.log("El siguiente cliente fue eliminado con exito:", cliente_eliminado);        
+    } else {
+        alert("No se ha aliminado ningun cliente");
+    }
 
-    historial_eliminados.push(cliente_eliminado);
-    // spread (...): convierte el arreglo en elementos individuales
-    /* arreglo_de_clientes.push(...nuevo_array); */
-
-    console.log("El siguiente cliente fue eliminado con exito:", cliente_eliminado);
 
 /*     console.log(arreglo_de_clientes); */
 
@@ -217,7 +228,7 @@ function listaCliente() {
 // Historial de eliminados
 function historialEliminados() {
     historial_eliminados.forEach(cliente => {
-        console.log(cliente);
+        console.log(cliente.infoDeCliente());
     });
 
     return interaccionCliente();
@@ -253,6 +264,7 @@ function menuCliente() {
 function menuPedidos() {
     return prompt(`
         ¿Que desea realizar en la seccion pedido?
+
         1 - Registrar un nuevo pedido
         2 - Eliminar un pedido
         3 - Conocer el estado de un pedido
@@ -265,6 +277,7 @@ function menuPedidos() {
 function menuBagues() {
     return prompt(`
         ¿Que desea realizar en la seccion Bagues?
+
         1 - Cargar pedido
         2 - Pedidos pendientes
         3 - Realizar un pago
@@ -283,10 +296,12 @@ function inicio () {
             return interaccionCliente();
 
         case 2:
-            return menuPedidos();
+            /* return menuPedidos(); */
+            return sinDesarrollar(inicio);
 
         case 3:
-            return menuBagues();
+            /* return menuBagues(); */
+            return sinDesarrollar(inicio);
 
         case 0:
             return;
@@ -294,7 +309,7 @@ function inicio () {
 }
 
 function interaccionCliente() {
-    let opcion = validarOpcion(menuCliente, 5);
+    let opcion = validarOpcion(menuCliente, 6);
 
     switch (opcion) {
         case 1:
@@ -310,15 +325,22 @@ function interaccionCliente() {
             return historialEliminados();
 
         case 5:
-            return ingresaPago();
+            /* return ingresaPago(); */
+            return sinDesarrollar(interaccionCliente);
 
         case 6:
-            return ccCliente();
+            /* return ccCliente(); */
+            return sinDesarrollar(interaccionCliente);
 
         case 0:
             return inicio();
 
     }
+}
+
+function sinDesarrollar(funcion) {
+    alert("Seccion sin desarrollar");
+    return funcion();
 }
 
 console.log("Bienvenid@");
