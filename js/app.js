@@ -96,7 +96,7 @@ function validarOpcion(funcion, cant_opcion) {
     return valor;
 }
 
-function validacionString(mensaje) {
+function validarString(mensaje) {
     let estado = false;
     let valor;
     
@@ -117,6 +117,27 @@ function validacionString(mensaje) {
     return valor;
 }
 
+function validarNumber(mensaje){
+    let estado = false;
+    let valor;
+    
+    
+    do{
+        valor = prompt(mensaje)
+        // Se comprueba de que no sea un string
+        if ( valor === null ) {
+            return valor;
+        } else if ( isNaN(valor) ){
+            alert("Ingreso invalido, por favor ingrese un numero");
+        } else {
+            estado = true;
+        }
+    } while ( !estado );
+    
+    console.log(valor);
+    return Number(valor);
+}
+
 
 // Clientes
 // Agregar cliente
@@ -124,9 +145,9 @@ function agregarCliente() {
     let nombre;
     let direccion;
 
-    nombre = validacionString("Ingrese el nombre:");
+    nombre = validarString("Ingrese el nombre:");
     if( nombre != null ){
-        direccion = validacionString("Ingrese la direccion:");
+        direccion = validarString("Ingrese la direccion:");
         if( direccion === null ){
             return interaccionCliente();
         }
@@ -144,13 +165,38 @@ function agregarCliente() {
 
 // Eliminar cliente
 function eliminarCliente() {
+    let id_cliente;
+    let nuevo_array = new Array;
+    let cliente_eliminado = new Object;
+
     console.log(`ID  |  Nombre`)
 
     arreglo_de_clientes.forEach(cliente => {
         console.log(`${cliente.id}   |  ${cliente.nombre}`);
     });
 
+    id_cliente = validarNumber("Ingrese la ID que quiere eliminar");
+
+    if( id_cliente === null ){
+        return interaccionCliente();
+    }
+
+    nuevo_array = arreglo_de_clientes.filter(arreglo => arreglo.id !== id_cliente);
+    console.log(nuevo_array);
+    cliente_eliminado = arreglo_de_clientes.filter(arreglo => arreglo.id === id_cliente);
+
+    arreglo_de_clientes.length = 0;
     
+    nuevo_array.forEach(cliente => {
+        arreglo_de_clientes.push(cliente)
+    });
+
+    // spread (...): convierte el arreglo en elementos individuales
+    /* arreglo_de_clientes.push(...nuevo_array); */
+
+    console.log("El siguiente cliente fue eliminado con exito:", cliente_eliminado);
+
+    console.log(arreglo_de_clientes);
 
     return interaccionCliente();
 }
@@ -262,4 +308,5 @@ function interaccionCliente() {
     }
 }
 
+console.log("Bienvenid@");
 inicio();
