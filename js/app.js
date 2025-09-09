@@ -205,6 +205,15 @@ function eliminarCliente() {
     return interaccionCliente();
 }
 
+// Lista de clientes
+function listaCliente() {
+    arreglo_de_clientes.forEach(cliente => {
+        console.log(cliente.infoDeCliente());
+    });
+
+    return interaccionCliente();
+}
+
 // Historial de eliminados
 function historialEliminados() {
     historial_eliminados.forEach(cliente => {
@@ -271,19 +280,16 @@ function inicio () {
 
     switch (opcion) {
         case 1:
-            interaccionCliente();
-            break;
+            return interaccionCliente();
 
         case 2:
-            menuPedidos();
-            break;
+            return menuPedidos();
 
         case 3:
-            menuBagues();
-            break;
+            return menuBagues();
 
         case 0:
-            break;
+            return;
     }
 }
 
@@ -292,32 +298,25 @@ function interaccionCliente() {
 
     switch (opcion) {
         case 1:
-            agregarCliente();
-            break;
+            return agregarCliente();
 
         case 2:
-            eliminarCliente();
-            break;
+            return eliminarCliente();
 
         case 3:
-            infoCliente();
-            break;
+            return listaCliente();
 
         case 4:
-            historialEliminados();
-            break;
+            return historialEliminados();
 
         case 5:
-            ingresaPago();
-            break;
+            return ingresaPago();
 
         case 6:
-            ccCliente();
-            break;
+            return ccCliente();
 
         case 0:
-            inicio();
-            break;
+            return inicio();
 
     }
 }
