@@ -1,7 +1,6 @@
 // CONSTRUCTORES
 
 // Clientes
-
 class Cliente {
     constructor(id, nombre, direccion, saldo) {
         this.id = id;
@@ -54,7 +53,14 @@ class Cliente {
         Saldo: $${this.saldo}
         `;
     }
+
+    infoIdNombre() {
+        return `${this.id}   |  ${this.nombre}`
+    }
+
 }
+
+const historial_eliminados = new Array;
 
 
 // Se agregan 3 clientes para que se pueda trabajar con datos
@@ -92,7 +98,6 @@ function validarOpcion(funcion, cant_opcion) {
         
     } while (!estado);
     
-    console.log(valor);
     return valor;
 }
 
@@ -113,7 +118,6 @@ function validarString(mensaje) {
         }
     } while ( !estado );
     
-    console.log(valor);
     return valor;
 }
 
@@ -134,7 +138,6 @@ function validarNumber(mensaje){
         }
     } while ( !estado );
     
-    console.log(valor);
     return Number(valor);
 }
 
@@ -172,7 +175,7 @@ function eliminarCliente() {
     console.log(`ID  |  Nombre`)
 
     arreglo_de_clientes.forEach(cliente => {
-        console.log(`${cliente.id}   |  ${cliente.nombre}`);
+        console.log(cliente.infoIdNombre());
     });
 
     id_cliente = validarNumber("Ingrese la ID que quiere eliminar");
@@ -182,7 +185,7 @@ function eliminarCliente() {
     }
 
     nuevo_array = arreglo_de_clientes.filter(arreglo => arreglo.id !== id_cliente);
-    console.log(nuevo_array);
+/*     console.log(nuevo_array); */
     cliente_eliminado = arreglo_de_clientes.filter(arreglo => arreglo.id === id_cliente);
 
     arreglo_de_clientes.length = 0;
@@ -191,12 +194,22 @@ function eliminarCliente() {
         arreglo_de_clientes.push(cliente)
     });
 
+    historial_eliminados.push(cliente_eliminado);
     // spread (...): convierte el arreglo en elementos individuales
     /* arreglo_de_clientes.push(...nuevo_array); */
 
     console.log("El siguiente cliente fue eliminado con exito:", cliente_eliminado);
 
-    console.log(arreglo_de_clientes);
+/*     console.log(arreglo_de_clientes); */
+
+    return interaccionCliente();
+}
+
+// Historial de eliminados
+function historialEliminados() {
+    historial_eliminados.forEach(cliente => {
+        console.log(cliente);
+    });
 
     return interaccionCliente();
 }
@@ -222,8 +235,9 @@ function menuCliente() {
         1 - Agregar nuevo cliente
         2 - Eliminar un cliente
         3 - Ver lista de cliente
-        4 - Ingresar un pago
-        5 - Ver cuenta corriente
+        4 - Ver historial de eliminados
+        5 - Ingresar un pago
+        6 - Ver cuenta corriente
         0 - Volver al menu anterior`);
 }
 
@@ -255,9 +269,6 @@ function menuBagues() {
 function inicio () {
     let opcion = validarOpcion(menuPrincipal, 4);
 
-    console.log(opcion);
-    console.log("4");
-
     switch (opcion) {
         case 1:
             interaccionCliente();
@@ -279,7 +290,6 @@ function inicio () {
 function interaccionCliente() {
     let opcion = validarOpcion(menuCliente, 5);
 
-    console.log(opcion);
     switch (opcion) {
         case 1:
             agregarCliente();
@@ -294,10 +304,14 @@ function interaccionCliente() {
             break;
 
         case 4:
-            ingresaPago();
+            historialEliminados();
             break;
 
         case 5:
+            ingresaPago();
+            break;
+
+        case 6:
             ccCliente();
             break;
 
