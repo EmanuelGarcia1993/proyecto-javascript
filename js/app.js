@@ -141,6 +141,16 @@ function validarNumber(mensaje){
     return Number(valor);
 }
 
+// Informacion
+function listaIdNombre(arreglo) {
+    console.log(`ID  |  Nombre`);
+
+    arreglo.forEach(cliente => {
+        console.log(cliente.infoIdNombre());
+    });
+
+}
+
 
 // Clientes
 // Agregar cliente
@@ -176,11 +186,7 @@ function eliminarCliente() {
     let nuevo_array = new Array;
     let cliente_eliminado = new Object;
 
-    console.log(`ID  |  Nombre`)
-
-    arreglo_de_clientes.forEach(cliente => {
-        console.log(cliente.infoIdNombre());
-    });
+    listaIdNombre(arreglo_de_clientes);
 
     id_cliente = validarNumber("Ingrese la ID que quiere eliminar");
 
@@ -192,7 +198,6 @@ function eliminarCliente() {
 
     if (confirm(`Esta segur@ que decea eliminar a: ${cliente_selec.infoDeCliente()}`)) {
         nuevo_array = arreglo_de_clientes.filter(arreglo => arreglo.id !== id_cliente);
-    /*     console.log(nuevo_array); */
         cliente_eliminado = arreglo_de_clientes.filter(arreglo => arreglo.id === id_cliente);
     
         arreglo_de_clientes.length = 0;
@@ -210,9 +215,6 @@ function eliminarCliente() {
         alert("No se ha aliminado ningun cliente");
     }
 
-
-/*     console.log(arreglo_de_clientes); */
-
     return interaccionCliente();
 }
 
@@ -228,11 +230,23 @@ function listaCliente() {
 // Historial de eliminados
 function historialEliminados() {
     historial_eliminados.forEach(cliente => {
-        console.log(cliente.infoDeCliente());
+        console.log(cliente);
     });
 
     return interaccionCliente();
 }
+
+// Ingresar un pago
+function ingresaPago() {
+    
+    console.log(`ID  |  Nombre`)
+
+    arreglo_de_clientes.forEach(cliente => {
+        console.log(cliente.infoIdNombre());
+    });
+
+}
+
 
 
 // MENUS
