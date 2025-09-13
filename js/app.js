@@ -47,9 +47,9 @@ class Cliente {
 
     infoDeCliente() {
         return `
-        ID: ${this.id}\n
-        Nombre: ${this.nombre}\n
-        Direccion: ${this.direccion}\n
+        ID: ${this.id}
+        Nombre: ${this.nombre}
+        Direccion: ${this.direccion}
         Saldo: $${this.saldo}
         `;
     }
@@ -183,34 +183,35 @@ function agregarCliente() {
 // Eliminar cliente
 function eliminarCliente() {
     let id_cliente;
-    let nuevo_array = new Array;
-    let cliente_eliminado = new Object;
+    let cliente_selec;
 
     listaIdNombre(arreglo_de_clientes);
 
-    id_cliente = validarNumber("Ingrese la ID que quiere eliminar");
-
-    if( id_cliente === null ){
-        return interaccionCliente();
-    }
-
-    let cliente_selec = arreglo_de_clientes.find( cliente => cliente.id === id_cliente );
-
-    if (confirm(`Esta segur@ que decea eliminar a: ${cliente_selec.infoDeCliente()}`)) {
-        nuevo_array = arreglo_de_clientes.filter(arreglo => arreglo.id !== id_cliente);
-        cliente_eliminado = arreglo_de_clientes.filter(arreglo => arreglo.id === id_cliente);
+    do{
+        id_cliente = validarNumber("Ingrese la ID que quiere eliminar");
     
-        arreglo_de_clientes.length = 0;
+        if( id_cliente === null ){
+            return interaccionCliente();
+        }
         
-        nuevo_array.forEach(cliente => {
-            arreglo_de_clientes.push(cliente)
-        });
+        cliente_selec = arreglo_de_clientes.findIndex( cliente => cliente.id === id_cliente );
+
+        if( cliente_selec === -1 ) {
+            alert("La ID ingresada no existe.")
+            id_cliente = null;
+        } 
+
+    } while ( cliente_selec === -1)
+
+    // FindIndex guarda la posicion del objeto buscado
     
-        historial_eliminados.push(cliente_eliminado);
-        // spread (...): convierte el arreglo en elementos individuales
-        /* arreglo_de_clientes.push(...nuevo_array); */
+    if (confirm(`Esta segur@ que decea eliminar a: ${arreglo_de_clientes[cliente_selec].infoDeCliente()}`)) {
+        
+        let [cliente_eliminado] = arreglo_de_clientes.splice(cliente_selec, 1);
+
+        historial_eliminados.push(cliente_eliminado); 
     
-        console.log("El siguiente cliente fue eliminado con exito:", cliente_eliminado);        
+        console.log("El siguiente cliente fue eliminado con exito:", cliente_eliminado.infoDeCliente());        
     } else {
         alert("No se ha aliminado ningun cliente");
     }
@@ -220,6 +221,8 @@ function eliminarCliente() {
 
 // Lista de clientes
 function listaCliente() {
+    console.log("Lista de clientes");
+
     arreglo_de_clientes.forEach(cliente => {
         console.log(cliente.infoDeCliente());
     });
@@ -229,11 +232,17 @@ function listaCliente() {
 
 // Historial de eliminados
 function historialEliminados() {
-    historial_eliminados.forEach(cliente => {
-        console.log(cliente);
-    });
-
-    return interaccionCliente();
+    if(historial_eliminados == "" ) {
+        console.log("No hay clientes eliminados");
+    } else {
+        console.log("Lista de clientes eliminados");
+    
+        historial_eliminados.forEach(cliente => {
+            console.log(cliente.infoDeCliente());
+        });
+    }
+        
+        return interaccionCliente();
 }
 
 // Ingresar un pago
