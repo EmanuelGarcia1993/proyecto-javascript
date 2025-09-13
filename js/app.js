@@ -198,7 +198,6 @@ function eliminarCliente() {
 
         if( cliente_selec === -1 ) {
             alert("La ID ingresada no existe.")
-            id_cliente = null;
         } 
 
     } while ( cliente_selec === -1)
