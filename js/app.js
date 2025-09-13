@@ -46,17 +46,6 @@ class Cliente {
         this.saldo = nuevo_saldo;
     }
     
-    registrarPago(nroComprobante, tipoComprobante, importe, fecha) {
-        const pago = {
-            nroComprobante,
-            tipoComprobante,
-            importe,
-            fecha
-        }
-
-        this.historialPagos.push(pago);
-    }
-
     infoDeCliente() {
         return `
         ID: ${this.id}
@@ -65,11 +54,40 @@ class Cliente {
         Saldo: $${this.saldo}
         `;
     }
-
+    
     infoIdNombre() {
         return `${this.id}   |  ${this.nombre}`
     }
+    
+    registrarPago(nroComprobante, tipoComprobante, importe, fecha) {
+        const pago = {
+            nroComprobante,
+            tipoComprobante,
+            importe,
+            fecha
+        }
+    
+        this.historialPagos.push(pago);
+    }
+    
+    infoCCorriente() {
+        let mensaje;
+        let total = 0;
 
+        mensaje = `Cuenta corriente de ${this.nombre}:\n\n`
+        for (let i = 0; i < this.historialPagos.length; i++) {
+            mensaje += `    Numero de comprobante: ${this.historialPagos[i].nroComprobante}
+    Tipo de comprobante: ${this.historialPagos[i].tipoComprobante}
+    Importe: $ ${this.historialPagos[i].importe}
+    Fecha de pago: ${this.historialPagos[i].fecha}\n\n`;
+
+            total += this.historialPagos[i].importe;
+        }
+
+        mensaje += `El total de los pagos es de $ ${total}`;
+
+        return mensaje;
+    }
 }
 
 const historial_eliminados = new Array;
@@ -309,7 +327,14 @@ function ingresaPago() {
     return interaccionCliente();
 }
 
+// Cuenta corriente
+function cuentaCorriente() {
+    let posicion_cliente;
 
+    posicion_cliente = seleccionDeCliente("De que cliente quiere ver su cuenta corriente");
+
+    return console.log(arreglo_de_clientes[posicion_cliente].infoCCorriente());
+}
 
 
 // MENUS
@@ -414,8 +439,7 @@ function interaccionCliente() {
                 return ingresaPago();
     
             case 6:
-                /* return ccCliente(); */
-                return sinDesarrollar(interaccionCliente);
+                return cuentaCorriente();
     
             case 0:
                 return inicio();
@@ -432,12 +456,15 @@ function interaccionComprobantePago() {
         case 1:
             tipo_comprobante = "Adelanto";
             break;
+
         case 2:
             tipo_comprobante = "Deuda";
             break;
+
         case 3:
             tipo_comprobante = "Total";
             break;
+
         case 0:
             tipo_comprobante = null;
             break;
