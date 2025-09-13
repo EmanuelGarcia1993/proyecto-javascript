@@ -2,31 +2,32 @@
 
 // Clientes
 class Cliente {
-    constructor(id, nombre, direccion, saldo) {
+    constructor(id, nombre, direccion) {
         this.id = id;
         this.nombre = nombre;
         this.direccion = direccion;
-        this.saldo = saldo;
+        this.saldo = 0;
+        this.historialPagos = [];
     }
-
+    
     // GET y SET de id
     getId() {
         return this.id;
     }
-
+    
     setId(nuevo_id) {
         this.id = nuevo_id;
     }
-
+    
     // GET y SET de nombre
     getNombre() {
         return this.nombre;
     }
-
+    
     setNombre(nuevoNombre) {
         this.nombre = nuevoNombre;
     }
-
+    
     // GET y SET de direccion
     getDireccion() {
         return this.direccion;
@@ -35,7 +36,7 @@ class Cliente {
     setDireccion(nueva_direccion) {
         this.direccion = nueva_direccion;
     }
-
+    
     // GET y SET de saldo
     getSaldo() {
         return this.saldo;
@@ -43,6 +44,17 @@ class Cliente {
 
     setSaldo(nuevo_saldo) {
         this.saldo = nuevo_saldo;
+    }
+    
+    registrarPago(nroComprobante, tipoComprobante, importe, fecha) {
+        const pago = {
+            nroComprobante,
+            tipoComprobante,
+            importe,
+            fecha
+        }
+
+        this.historialPagos.push(pago);
     }
 
     infoDeCliente() {
@@ -65,9 +77,9 @@ const historial_eliminados = new Array;
 
 // Se agregan 3 clientes para que se pueda trabajar con datos
 const arreglo_de_clientes = new Array();
-arreglo_de_clientes.push(new Cliente(1, "Emanuel Garcia", "Palemon carranza 2463", 0));
-arreglo_de_clientes.push(new Cliente(2, "Griselda Morillo", "Tucuman 1235", 0));
-arreglo_de_clientes.push(new Cliente(3, "Monica Centeno", "24 de noviembre 2555", 0));
+arreglo_de_clientes.push(new Cliente(1, "Emanuel Garcia", "Palemon carranza 2463"));
+arreglo_de_clientes.push(new Cliente(2, "Griselda Morillo", "Tucuman 1235"));
+arreglo_de_clientes.push(new Cliente(3, "Monica Centeno", "24 de noviembre 2555"));
 
 
 // FUNCIONES
@@ -118,7 +130,7 @@ function validarString(mensaje) {
         if ( valor === null ) {
             return valor;
         } else if ( !isNaN(valor) ){
-            alert("Ingreso invalido, por favor ingrese un nombre");
+            alert("Ingreso invalido, por favor ingrese un texto");
         } else {
             estado = true;
         }
@@ -149,7 +161,7 @@ function validarNumber(mensaje){
 
 function seleccionDeCliente(mensaje) {
     // Devuelve la posicion del cliente seleccionado
-    let cliente_selec;
+    let posicion_cliente;
     let id_selec;
 
     listaIdNombre(arreglo_de_clientes);
@@ -161,15 +173,19 @@ function seleccionDeCliente(mensaje) {
             return interaccionCliente();
         }
         
-        cliente_selec = arreglo_de_clientes.findIndex( cliente => cliente.id === id_selec );
+        posicion_cliente = arreglo_de_clientes.findIndex( cliente => cliente.id === id_selec );
 
-        if( cliente_selec === -1 ) {
+        if( posicion_cliente === -1 ) {
             alert("La ID ingresada no existe.")
-        } 
+        } else {
+            if (!confirm(`El cliente seleccionado es ${arreglo_de_clientes[posicion_cliente].getNombre()}. ¿Es correcto?`)){
+                posicion_cliente = -1;
+            }
+        }
 
-    } while ( cliente_selec === -1);
+    } while ( posicion_cliente === -1 );
 
-    return cliente_selec;
+    return posicion_cliente;
 }
 
 // Informacion
@@ -213,15 +229,15 @@ function agregarCliente() {
 
 // Eliminar cliente
 function eliminarCliente() {
-    let id_cliente;
+    let posicion_cliente;
 
-    id_cliente = seleccionDeCliente("Ingrese la ID que quiere eliminar");
+    posicion_cliente = seleccionDeCliente("Ingrese la ID que quiere eliminar");
 
     // FindIndex guarda la posicion del objeto buscado
     
-    if (confirm(`Esta segur@ que decea eliminar a: ${arreglo_de_clientes[id_cliente].infoDeCliente()}`)) {
+    if (confirm(`Esta segur@ que decea eliminar a: ${arreglo_de_clientes[posicion_cliente].infoDeCliente()}`)) {
         
-        let [cliente_eliminado] = arreglo_de_clientes.splice(id_cliente, 1);
+        let [cliente_eliminado] = arreglo_de_clientes.splice(posicion_cliente, 1);
 
         historial_eliminados.push(cliente_eliminado); 
     
@@ -261,16 +277,34 @@ function historialEliminados() {
 
 // Ingresar un pago
 function ingresaPago() {
-    let id_cliente;
+    let posicion_cliente;
+    let tipo_comprobante;
     let importe;
+    let fecha;
 
-    id_cliente = seleccionDeCliente("¿De que cliente quiere ingresar un pago?");
+    posicion_cliente = seleccionDeCliente("¿De que cliente quiere ingresar un pago?");
 
-    importe = validarNumber(`Ingrese el importe de ${arreglo_de_clientes[id_cliente].getNombre()}`);
+    tipo_comprobante = interaccionComprobantePago();
 
-    arreglo_de_clientes[id_cliente].setSaldo(arreglo_de_clientes[id_cliente].getSaldo() + importe);
+    if ( tipo_comprobante === null ){
+        return interaccionCliente()
+    }
 
-    console.log(`El nuevo saldo de ${arreglo_de_clientes[id_cliente].getNombre()} es de $${arreglo_de_clientes[id_cliente].getSaldo()}`);
+    importe = validarNumber("Ingrese el importe abonado");
+
+    if (importe === null) {
+        return interaccionCliente()
+    }
+
+    fecha = validarString("Ingrese la fecha de pago");
+
+    if (fecha === null) {
+        return interaccionCliente()
+    }
+
+    arreglo_de_clientes[posicion_cliente].registrarPago(arreglo_de_clientes[posicion_cliente].historialPagos.length + 1, tipo_comprobante, importe, fecha);
+
+    console.log(arreglo_de_clientes[posicion_cliente]);
 
     return interaccionCliente();
 }
@@ -280,8 +314,7 @@ function ingresaPago() {
 
 // MENUS
 function menuPrincipal() {
-    return prompt(`
-        Elija una opcion:
+    return prompt(`Elija una opcion:
 
         1 - Cliente
         2 - Pedido
@@ -290,8 +323,7 @@ function menuPrincipal() {
 }
 
 function menuCliente() {
-    return prompt(`
-        ¿Que desea realizar en la seccion cliente?
+    return prompt(`¿Que desea realizar en la seccion cliente?
 
         1 - Agregar nuevo cliente
         2 - Eliminar un cliente
@@ -303,8 +335,7 @@ function menuCliente() {
 }
 
 function menuPedidos() {
-    return prompt(`
-        ¿Que desea realizar en la seccion pedido?
+    return prompt(`¿Que desea realizar en la seccion pedido?
 
         1 - Registrar un nuevo pedido
         2 - Eliminar un pedido
@@ -316,8 +347,7 @@ function menuPedidos() {
 }
 
 function menuBagues() {
-    return prompt(`
-        ¿Que desea realizar en la seccion Bagues?
+    return prompt(`¿Que desea realizar en la seccion Bagues?
 
         1 - Cargar pedido
         2 - Pedidos pendientes
@@ -326,56 +356,95 @@ function menuBagues() {
         `)
 }
 
+function tipoComprobantePago() {
+    return prompt(`Ingrese el tipo de comprobante:
+        1 - Adelanto
+        2 - Deuda
+        3 - Total
+        0 - Cancelar`)
+}
+
 
 // INTERACCIONES
 // Inicio de programa
 function inicio () {
     let opcion = validarOpcion(menuPrincipal, 4);
 
-    switch (opcion) {
-        case 1:
-            return interaccionCliente();
-
-        case 2:
-            /* return menuPedidos(); */
-            return sinDesarrollar(inicio);
-
-        case 3:
-            /* return menuBagues(); */
-            return sinDesarrollar(inicio);
-
-        case 0:
-            return;
+    if (opcion === null) {
+        return;
+    } else {
+        switch (opcion) {
+            case 1:
+                return interaccionCliente();
+    
+            case 2:
+                /* return menuPedidos(); */
+                return sinDesarrollar(inicio);
+    
+            case 3:
+                /* return menuBagues(); */
+                return sinDesarrollar(inicio);
+    
+            case 0:
+                return;
+        }
     }
 }
 
 function interaccionCliente() {
     let opcion = validarOpcion(menuCliente, 6);
 
-    switch (opcion) {
-        case 1:
+    if (opcion === null) {
+        return inicio();
+    } else {
+        switch (opcion) {
+            case 1:
             return agregarCliente();
-
-        case 2:
-            return eliminarCliente();
-
-        case 3:
-            return listaCliente();
-
-        case 4:
-            return historialEliminados();
-
-        case 5:
-            return ingresaPago();
-
-        case 6:
-            /* return ccCliente(); */
-            return sinDesarrollar(interaccionCliente);
-
-        case 0:
-            return inicio();
-
+            
+            case 2:
+                return eliminarCliente();
+    
+            case 3:
+                return listaCliente();
+    
+            case 4:
+                return historialEliminados();
+    
+            case 5:
+                return ingresaPago();
+    
+            case 6:
+                /* return ccCliente(); */
+                return sinDesarrollar(interaccionCliente);
+    
+            case 0:
+                return inicio();
+    
+        }
     }
+}
+
+function interaccionComprobantePago() {
+    let tipo_comprobante;
+    let seleccion = validarOpcion(tipoComprobantePago, 3);
+    
+    switch (seleccion) {
+        case 1:
+            tipo_comprobante = "Adelanto";
+            break;
+        case 2:
+            tipo_comprobante = "Deuda";
+            break;
+        case 3:
+            tipo_comprobante = "Total";
+            break;
+        case 0:
+            tipo_comprobante = null;
+            break;
+    }
+
+    return tipo_comprobante;
+
 }
 
 console.log("Bienvenid@");
