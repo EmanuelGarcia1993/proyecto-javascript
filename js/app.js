@@ -71,6 +71,12 @@ arreglo_de_clientes.push(new Cliente(3, "Monica Centeno", "24 de noviembre 2555"
 
 
 // FUNCIONES
+// Relleno
+function sinDesarrollar(funcion) {
+    alert("Seccion sin desarrollar");
+    return funcion();
+}
+
 // Validacion de datos
 function validarOpcion(funcion, cant_opcion) {
     let estado = false;
@@ -141,6 +147,31 @@ function validarNumber(mensaje){
     return Number(valor);
 }
 
+function seleccionDeCliente(mensaje) {
+    // Devuelve la posicion del cliente seleccionado
+    let cliente_selec;
+    let id_selec;
+
+    listaIdNombre(arreglo_de_clientes);
+
+    do{
+        id_selec = validarNumber(mensaje);
+    
+        if( id_selec === null ){
+            return interaccionCliente();
+        }
+        
+        cliente_selec = arreglo_de_clientes.findIndex( cliente => cliente.id === id_selec );
+
+        if( cliente_selec === -1 ) {
+            alert("La ID ingresada no existe.")
+        } 
+
+    } while ( cliente_selec === -1);
+
+    return cliente_selec;
+}
+
 // Informacion
 function listaIdNombre(arreglo) {
     console.log(`ID  |  Nombre`);
@@ -183,30 +214,14 @@ function agregarCliente() {
 // Eliminar cliente
 function eliminarCliente() {
     let id_cliente;
-    let cliente_selec;
 
-    listaIdNombre(arreglo_de_clientes);
-
-    do{
-        id_cliente = validarNumber("Ingrese la ID que quiere eliminar");
-    
-        if( id_cliente === null ){
-            return interaccionCliente();
-        }
-        
-        cliente_selec = arreglo_de_clientes.findIndex( cliente => cliente.id === id_cliente );
-
-        if( cliente_selec === -1 ) {
-            alert("La ID ingresada no existe.")
-        } 
-
-    } while ( cliente_selec === -1)
+    id_cliente = seleccionDeCliente("Ingrese la ID que quiere eliminar");
 
     // FindIndex guarda la posicion del objeto buscado
     
-    if (confirm(`Esta segur@ que decea eliminar a: ${arreglo_de_clientes[cliente_selec].infoDeCliente()}`)) {
+    if (confirm(`Esta segur@ que decea eliminar a: ${arreglo_de_clientes[id_cliente].infoDeCliente()}`)) {
         
-        let [cliente_eliminado] = arreglo_de_clientes.splice(cliente_selec, 1);
+        let [cliente_eliminado] = arreglo_de_clientes.splice(id_cliente, 1);
 
         historial_eliminados.push(cliente_eliminado); 
     
@@ -246,14 +261,20 @@ function historialEliminados() {
 
 // Ingresar un pago
 function ingresaPago() {
-    
-    console.log(`ID  |  Nombre`)
+    let id_cliente;
+    let importe;
 
-    arreglo_de_clientes.forEach(cliente => {
-        console.log(cliente.infoIdNombre());
-    });
+    id_cliente = seleccionDeCliente("¿De que cliente quiere ingresar un pago?");
 
+    importe = validarNumber(`Ingrese el importe de ${arreglo_de_clientes[id_cliente].getNombre()}`);
+
+    arreglo_de_clientes[id_cliente].setSaldo(arreglo_de_clientes[id_cliente].getSaldo() + importe);
+
+    console.log(`El nuevo saldo de ${arreglo_de_clientes[id_cliente].getNombre()} es de $${arreglo_de_clientes[id_cliente].getSaldo()}`);
+
+    return interaccionCliente();
 }
+
 
 
 
@@ -266,8 +287,6 @@ function menuPrincipal() {
         2 - Pedido
         3 - Bagues
         0 - Salir`);
-
-
 }
 
 function menuCliente() {
@@ -347,8 +366,7 @@ function interaccionCliente() {
             return historialEliminados();
 
         case 5:
-            /* return ingresaPago(); */
-            return sinDesarrollar(interaccionCliente);
+            return ingresaPago();
 
         case 6:
             /* return ccCliente(); */
@@ -358,11 +376,6 @@ function interaccionCliente() {
             return inicio();
 
     }
-}
-
-function sinDesarrollar(funcion) {
-    alert("Seccion sin desarrollar");
-    return funcion();
 }
 
 console.log("Bienvenid@");
