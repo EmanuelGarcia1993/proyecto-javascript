@@ -345,7 +345,9 @@ function cuentaCorriente() {
 
     posicion_cliente = seleccionDeCliente("De que cliente quiere ver su cuenta corriente");
 
-    return console.log(arreglo_de_clientes[posicion_cliente].infoCCorriente());
+    console.log(arreglo_de_clientes[posicion_cliente].infoCCorriente());
+    
+    return interaccionCliente();
 }
 
 
@@ -391,7 +393,7 @@ function nuevoPedidoCliente() {
 }
 
 function eliminarPedidoCliente() {
-    
+
 }
 
 // MENUS
