@@ -7,7 +7,8 @@ class Cliente {
         this.nombre = nombre;
         this.direccion = direccion;
         this.saldo = 0;
-        this.historialPagos = [];
+        this.historial_pagos = [];
+        this.pedidos = [];
     }
     
     // GET y SET de id
@@ -59,29 +60,40 @@ class Cliente {
         return `${this.id}   |  ${this.nombre}`
     }
     
-    registrarPago(nroComprobante, tipoComprobante, importe, fecha) {
+    registrarPago(nro_comprobante, tipo_comprobante, importe, fecha) {
         const pago = {
-            nroComprobante,
-            tipoComprobante,
+            nro_comprobante,
+            tipo_comprobante,
             importe,
             fecha
         }
     
-        this.historialPagos.push(pago);
+        this.historial_pagos.push(pago);
     }
     
+    registrarPedido(nro_pedido, productos, importe, fecha) {
+        const pedido = {
+            nro_pedido,
+            productos,
+            importe,
+            fecha
+        }
+
+        this.pedidos.push(pedido);
+    }
+
     infoCCorriente() {
         let mensaje;
         let total = 0;
 
         mensaje = `Cuenta corriente de ${this.nombre}:\n\n`
-        for (let i = 0; i < this.historialPagos.length; i++) {
-            mensaje += `    Numero de comprobante: ${this.historialPagos[i].nroComprobante}
-    Tipo de comprobante: ${this.historialPagos[i].tipoComprobante}
-    Importe: $ ${this.historialPagos[i].importe}
-    Fecha de pago: ${this.historialPagos[i].fecha}\n\n`;
+        for (let i = 0; i < this.historial_pagos.length; i++) {
+            mensaje += `    Numero de comprobante: ${this.historial_pagos[i].nro_comprobante}
+    Tipo de comprobante: ${this.historial_pagos[i].tipo_comprobante}
+    Importe: $ ${this.historial_pagos[i].importe}
+    Fecha de pago: ${this.historial_pagos[i].fecha}\n\n`;
 
-            total += this.historialPagos[i].importe;
+            total += this.historial_pagos[i].importe;
         }
 
         mensaje += `El total de los pagos es de $ ${total}`;
@@ -217,7 +229,7 @@ function listaIdNombre(arreglo) {
 }
 
 
-// Clientes
+// CLIENTES
 // Agregar cliente
 function agregarCliente() {
     let nombre;
@@ -253,7 +265,7 @@ function eliminarCliente() {
 
     // FindIndex guarda la posicion del objeto buscado
     
-    if (confirm(`Esta segur@ que decea eliminar a: ${arreglo_de_clientes[posicion_cliente].infoDeCliente()}`)) {
+    if (confirm(`Esta segur@ que desea eliminar a: ${arreglo_de_clientes[posicion_cliente].infoDeCliente()}`)) {
         
         let [cliente_eliminado] = arreglo_de_clientes.splice(posicion_cliente, 1);
 
@@ -320,7 +332,7 @@ function ingresaPago() {
         return interaccionCliente()
     }
 
-    arreglo_de_clientes[posicion_cliente].registrarPago(arreglo_de_clientes[posicion_cliente].historialPagos.length + 1, tipo_comprobante, importe, fecha);
+    arreglo_de_clientes[posicion_cliente].registrarPago(arreglo_de_clientes[posicion_cliente].historial_pagos.length + 1, tipo_comprobante, importe, fecha);
 
     console.log(arreglo_de_clientes[posicion_cliente]);
 
@@ -336,6 +348,51 @@ function cuentaCorriente() {
     return console.log(arreglo_de_clientes[posicion_cliente].infoCCorriente());
 }
 
+
+// PEDIDOS (CLIENTES)
+function nuevoPedidoCliente() {
+    let confirmacion;
+    let productos = [];
+    let descripcion;
+    let importe_producto;
+    let codigo_producto;
+    let importe_total = 0;
+    let fecha;
+    let posicion_cliente;
+    let cant = 1;
+    
+    posicion_cliente = seleccionDeCliente("De que cliente va a registrar un pedido?");
+
+    do {
+        do {
+            codigo_producto = validarNumber(`Ingrese el codigo del producto`);
+            descripcion = validarString(`Ingrese la descripcion del producto Nro. ${cant}:`);
+            importe_producto = validarNumber(`Ingrese el importe de ${descripcion}`);
+            confirmacion = confirm(`El producto Nro. ${cant} es:
+    Codigo: ${codigo_producto}
+    Descripcion: ${descripcion}
+    Precio: ${importe_producto}
+    
+    Es correcto?`)
+        } while (!confirmacion);
+        cant++;
+        importe_total += importe_producto;
+        productos.push({codigo_producto, descripcion, importe_producto})
+
+        confirmacion = confirm(`Desea agregar otro producto?`);
+    } while (confirmacion);
+
+    arreglo_de_clientes[posicion_cliente].registrarPedido(arreglo_de_clientes[posicion_cliente].pedidos.length + 1, productos, importe_total, `13/09/2025`);
+
+    console.log(arreglo_de_clientes[posicion_cliente]);
+
+    return interaccionPedidos();
+
+}
+
+function eliminarPedidoCliente() {
+    
+}
 
 // MENUS
 function menuPrincipal() {
@@ -381,7 +438,7 @@ function menuBagues() {
         `)
 }
 
-function tipoComprobantePago() {
+function tipo_comprobantePago() {
     return prompt(`Ingrese el tipo de comprobante:
         1 - Adelanto
         2 - Deuda
@@ -397,22 +454,21 @@ function inicio () {
 
     if (opcion === null) {
         return;
-    } else {
-        switch (opcion) {
-            case 1:
-                return interaccionCliente();
-    
-            case 2:
-                /* return menuPedidos(); */
-                return sinDesarrollar(inicio);
-    
-            case 3:
-                /* return menuBagues(); */
-                return sinDesarrollar(inicio);
-    
-            case 0:
-                return;
-        }
+    }
+
+    switch (opcion) {
+        case 1:
+            return interaccionCliente();
+
+        case 2:
+            return interaccionPedidos();
+
+        case 3:
+            /* return menuBagues(); */
+            return sinDesarrollar(inicio);
+
+        case 0:
+            return;
     }
 }
 
@@ -421,36 +477,64 @@ function interaccionCliente() {
 
     if (opcion === null) {
         return inicio();
-    } else {
-        switch (opcion) {
-            case 1:
-            return agregarCliente();
-            
-            case 2:
-                return eliminarCliente();
-    
-            case 3:
-                return listaCliente();
-    
-            case 4:
-                return historialEliminados();
-    
-            case 5:
-                return ingresaPago();
-    
-            case 6:
-                return cuentaCorriente();
-    
-            case 0:
-                return inicio();
-    
-        }
+    }
+
+    switch (opcion) {
+        case 1:
+        return agregarCliente();
+        
+        case 2:
+            return eliminarCliente();
+
+        case 3:
+            return listaCliente();
+
+        case 4:
+            return historialEliminados();
+
+        case 5:
+            return ingresaPago();
+
+        case 6:
+            return cuentaCorriente();
+
+        case 0:
+            return inicio();
+
+    }
+}
+
+function interaccionPedidos() {
+    let opcion = validarOpcion(menuPedidos, 5);
+
+    if ( opcion === null ) {
+        return inicio();
+    }
+
+    switch (opcion) {
+        case 1:
+            return nuevoPedidoCliente();
+
+        case 2:
+            return eliminarPedidoCliente();
+
+        case 3:
+            return estadoPedidoCliente();
+
+        case 4:
+            return historialPedidoCliente();
+
+        case 5:
+            return pedidosPendienteCliente();
+
+        case 0:
+            return inicio();
     }
 }
 
 function interaccionComprobantePago() {
     let tipo_comprobante;
-    let seleccion = validarOpcion(tipoComprobantePago, 3);
+    let seleccion = validarOpcion(tipo_comprobantePago, 3);
     
     switch (seleccion) {
         case 1:
