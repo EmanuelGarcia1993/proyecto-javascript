@@ -82,16 +82,27 @@ class Cliente {
         this.pedidos.push(pedido);
     }
 
+    mostrarPedido() {
+        let mensaje = "";
+
+        for (let i1 = 0; i1 < this.pedidos.length; i1++) {
+            mensaje += `Pedido N°: ${this.pedidos[i1].nro_pedido}\n\nProductos:\n`;
+            for (let i2 = 0; i2 < this.pedidos[i1].productos.length; i2++) {
+                mensaje += `${this.pedidos[i1].productos[i2].descripcion}\n`;
+            }
+            mensaje += `\n\n`
+        }
+
+        return mensaje;
+    }
+
     infoCCorriente() {
         let mensaje;
         let total = 0;
 
         mensaje = `Cuenta corriente de ${this.nombre}:\n\n`
         for (let i = 0; i < this.historial_pagos.length; i++) {
-            mensaje += `    Numero de comprobante: ${this.historial_pagos[i].nro_comprobante}
-    Tipo de comprobante: ${this.historial_pagos[i].tipo_comprobante}
-    Importe: $ ${this.historial_pagos[i].importe}
-    Fecha de pago: ${this.historial_pagos[i].fecha}\n\n`;
+            mensaje += `Numero de comprobante: ${this.historial_pagos[i].nro_comprobante}\nTipo de comprobante: ${this.historial_pagos[i].tipo_comprobante}\nImporte: $ ${this.historial_pagos[i].importe}\nFecha de pago: ${this.historial_pagos[i].fecha}\n\n`;
 
             total += this.historial_pagos[i].importe;
         }
@@ -189,7 +200,7 @@ function validarNumber(mensaje){
     return Number(valor);
 }
 
-function seleccionDeCliente(mensaje) {
+function seleccionDeCliente(funcion, mensaje) {
     // Devuelve la posicion del cliente seleccionado
     let posicion_cliente;
     let id_selec;
@@ -200,7 +211,7 @@ function seleccionDeCliente(mensaje) {
         id_selec = validarNumber(mensaje);
     
         if( id_selec === null ){
-            return interaccionCliente();
+            return funcion();
         }
         
         posicion_cliente = arreglo_de_clientes.findIndex( cliente => cliente.id === id_selec );
@@ -216,6 +227,14 @@ function seleccionDeCliente(mensaje) {
     } while ( posicion_cliente === -1 );
 
     return posicion_cliente;
+}
+
+function opcionCancelar(variable) {
+    if (variable === null) {
+        return true;
+    }
+
+    return false;
 }
 
 // Informacion
@@ -261,7 +280,7 @@ function agregarCliente() {
 function eliminarCliente() {
     let posicion_cliente;
 
-    posicion_cliente = seleccionDeCliente("Ingrese la ID que quiere eliminar");
+    posicion_cliente = seleccionDeCliente(interaccionCliente, "Ingrese la ID que quiere eliminar");
 
     // FindIndex guarda la posicion del objeto buscado
     
@@ -312,7 +331,7 @@ function ingresaPago() {
     let importe;
     let fecha;
 
-    posicion_cliente = seleccionDeCliente("¿De que cliente quiere ingresar un pago?");
+    posicion_cliente = seleccionDeCliente(interaccionCliente, "¿De que cliente quiere ingresar un pago?");
 
     tipo_comprobante = interaccionComprobantePago();
 
@@ -343,7 +362,7 @@ function ingresaPago() {
 function cuentaCorriente() {
     let posicion_cliente;
 
-    posicion_cliente = seleccionDeCliente("De que cliente quiere ver su cuenta corriente");
+    posicion_cliente = seleccionDeCliente(interaccionCliente, "De que cliente quiere ver su cuenta corriente");
 
     console.log(arreglo_de_clientes[posicion_cliente].infoCCorriente());
     
@@ -362,14 +381,18 @@ function nuevoPedidoCliente() {
     let fecha;
     let posicion_cliente;
     let cant = 1;
+    let cancelar;
     
-    posicion_cliente = seleccionDeCliente("De que cliente va a registrar un pedido?");
+    posicion_cliente = seleccionDeCliente(interaccionPedidos, "De que cliente va a registrar un pedido?");
 
     do {
         do {
             codigo_producto = validarNumber(`Ingrese el codigo del producto`);
+            if(opcionCancelar(codigo_producto)) return interaccionPedidos();
             descripcion = validarString(`Ingrese la descripcion del producto Nro. ${cant}:`);
+            if(opcionCancelar(descripcion)) return interaccionPedidos();
             importe_producto = validarNumber(`Ingrese el importe de ${descripcion}`);
+            if(opcionCancelar(importe_producto)) return interaccionPedidos();
             confirmacion = confirm(`El producto Nro. ${cant} es:
     Codigo: ${codigo_producto}
     Descripcion: ${descripcion}
@@ -393,7 +416,15 @@ function nuevoPedidoCliente() {
 }
 
 function eliminarPedidoCliente() {
+    let posicion_cliente;
 
+    posicion_cliente = seleccionDeCliente(interaccionPedidos, "De que cliente va a eliminar el pedido?");
+
+    if (opcionCancelar(posicion_cliente)) return interaccionPedidos();
+
+    console.log(arreglo_de_clientes[posicion_cliente].mostrarPedido());
+
+    return interaccionPedidos();
 }
 
 // MENUS
@@ -454,10 +485,6 @@ function tipo_comprobantePago() {
 function inicio () {
     let opcion = validarOpcion(menuPrincipal, 4);
 
-    if (opcion === null) {
-        return;
-    }
-
     switch (opcion) {
         case 1:
             return interaccionCliente();
@@ -476,10 +503,6 @@ function inicio () {
 
 function interaccionCliente() {
     let opcion = validarOpcion(menuCliente, 6);
-
-    if (opcion === null) {
-        return inicio();
-    }
 
     switch (opcion) {
         case 1:
@@ -508,10 +531,6 @@ function interaccionCliente() {
 
 function interaccionPedidos() {
     let opcion = validarOpcion(menuPedidos, 5);
-
-    if ( opcion === null ) {
-        return inicio();
-    }
 
     switch (opcion) {
         case 1:
