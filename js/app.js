@@ -1,5 +1,30 @@
 // CONSTRUCTORES
+/*Estructura arreglo_de_clientes:
+[{
+id
+nombre
+direccion
+saldo
+historial_pagos [{
+                nro_comprobante
+                tipo_comprobante
+                importe
+                fecha
+                }]
+pedidos [{
+        nro_pedido
+        productos   [{
+                    codigo_producto
+                    descripcion
+                    importe_producto
+                    }]
+        importe
+        fecha
+        estado
+        }]
+}]
 
+*/ 
 // Clientes
 class Cliente {
     constructor(id, nombre, direccion) {
@@ -76,13 +101,24 @@ class Cliente {
             nro_pedido,
             productos,
             importe,
-            fecha
+            fecha,
+            estado: "Pendiente a solicitar"
         }
 
         this.pedidos.push(pedido);
     }
 
-    mostrarPedido() {
+    registrarProductos(codigo, descripcion, importe){
+        const producto = {
+            codigo,
+            descripcion,
+            importe
+        }
+
+        this.productos.push(producto);
+    }
+
+    mostrarPedidos() {
         let mensaje = "";
 
         for (let i1 = 0; i1 < this.pedidos.length; i1++) {
@@ -121,6 +157,33 @@ const arreglo_de_clientes = new Array();
 arreglo_de_clientes.push(new Cliente(1, "Emanuel Garcia", "Palemon carranza 2463"));
 arreglo_de_clientes.push(new Cliente(2, "Griselda Morillo", "Tucuman 1235"));
 arreglo_de_clientes.push(new Cliente(3, "Monica Centeno", "24 de noviembre 2555"));
+
+arreglo_de_clientes[0].registrarPedido(1, [
+    {   
+        codigo: 1,
+        descripcion: "Perfume",
+        importe_producto: 3000
+    },
+    {
+        codigo: 2,
+        descripcion: "Aceite",
+        importe: 1000
+    }
+], 4000, "22/09/2025")
+
+arreglo_de_clientes[0].registrarPedido(2, [
+    {   
+        codigo: 3,
+        descripcion: "Crema",
+        importe_producto: 2500
+    },
+    {
+        codigo: 4,
+        descripcion: "Aromatizante",
+        importe: 2000
+    }
+], 4500, "22/09/2025")
+
 
 
 // FUNCIONES
@@ -200,7 +263,7 @@ function validarNumber(mensaje){
     return Number(valor);
 }
 
-function seleccionDeCliente(funcion, mensaje) {
+function seleccionDeCliente(mensaje) {
     // Devuelve la posicion del cliente seleccionado
     let posicion_cliente;
     let id_selec;
@@ -211,13 +274,13 @@ function seleccionDeCliente(funcion, mensaje) {
         id_selec = validarNumber(mensaje);
     
         if( id_selec === null ){
-            return funcion();
+            return id_selec;
         }
         
         posicion_cliente = arreglo_de_clientes.findIndex( cliente => cliente.id === id_selec );
 
         if( posicion_cliente === -1 ) {
-            alert("La ID ingresada no existe.")
+            alert("La ID ingresada no existe.");
         } else {
             if (!confirm(`El cliente seleccionado es ${arreglo_de_clientes[posicion_cliente].getNombre()}. ¿Es correcto?`)){
                 posicion_cliente = -1;
@@ -227,6 +290,41 @@ function seleccionDeCliente(funcion, mensaje) {
     } while ( posicion_cliente === -1 );
 
     return posicion_cliente;
+}
+
+function comprobarPedidos(cliente) {
+    let confirmacion = new Boolean;
+
+    if(cliente.pedidos.length === 0) {
+        alert("El cliente seleccionado no tiene pedidos");
+        confirmacion = false;
+    } else {
+        confirmacion = true;
+    }
+
+    return confirmacion;
+}
+
+function seleccionPedido(cliente, mensaje) {
+    let selec_pedido;
+    let posicion_pedido;
+    let pedido = "";
+
+    console.log(cliente.mostrarPedidos());
+
+    do  {
+        selec_pedido = validarNumber(mensaje);
+
+        posicion_pedido = cliente.pedidos.findIndex( pedido => pedido.nro_pedido === selec_pedido);
+
+        if( posicion_pedido === -1 ) {
+            alert("El pedido seleccionado no existe.");
+        } else {
+            pedido = mostrarPedido(cliente.pedidos[posicion_pedido]);
+        }
+    } while ( !(pedido != "") );
+
+    return posicion_pedido;
 }
 
 function opcionCancelar(variable) {
@@ -245,6 +343,21 @@ function listaIdNombre(arreglo) {
         console.log(cliente.infoIdNombre());
     });
 
+}
+
+// Mostrar pedido individual
+function mostrarPedido(pedido) {
+    let mensaje = "";
+
+        mensaje +=  `Nro. de pedido: ${pedido.nro_pedido}\n`;
+
+        for (let i = 0; i < pedido.productos.length; i++) {
+            mensaje += `${pedido.productos[i].descripcion}\n`;
+        }
+
+        mensaje += `\n${pedido.importe}`;
+
+        return mensaje;
 }
 
 
@@ -280,7 +393,9 @@ function agregarCliente() {
 function eliminarCliente() {
     let posicion_cliente;
 
-    posicion_cliente = seleccionDeCliente(interaccionCliente, "Ingrese la ID que quiere eliminar");
+    posicion_cliente = seleccionDeCliente("Ingrese la ID que quiere eliminar");
+
+    if( opcionCancelar(posicion_cliente) ) return interaccionCliente();
 
     // FindIndex guarda la posicion del objeto buscado
     
@@ -331,7 +446,9 @@ function ingresaPago() {
     let importe;
     let fecha;
 
-    posicion_cliente = seleccionDeCliente(interaccionCliente, "¿De que cliente quiere ingresar un pago?");
+    posicion_cliente = seleccionDeCliente("¿De que cliente quiere ingresar un pago?");
+
+    if( opcionCancelar(posicion_cliente) ) return interaccionCliente();
 
     tipo_comprobante = interaccionComprobantePago();
 
@@ -362,7 +479,9 @@ function ingresaPago() {
 function cuentaCorriente() {
     let posicion_cliente;
 
-    posicion_cliente = seleccionDeCliente(interaccionCliente, "De que cliente quiere ver su cuenta corriente");
+    posicion_cliente = seleccionDeCliente("De que cliente quiere ver su cuenta corriente");
+
+    if( opcionCancelar(posicion_cliente) ) return interaccionCliente();
 
     console.log(arreglo_de_clientes[posicion_cliente].infoCCorriente());
     
@@ -383,7 +502,9 @@ function nuevoPedidoCliente() {
     let cant = 1;
     let cancelar;
     
-    posicion_cliente = seleccionDeCliente(interaccionPedidos, "De que cliente va a registrar un pedido?");
+    posicion_cliente = seleccionDeCliente("De que cliente va a registrar un pedido?");
+
+    if( opcionCancelar(posicion_cliente) ) return interaccionCliente();
 
     do {
         do {
@@ -415,14 +536,49 @@ function nuevoPedidoCliente() {
 
 }
 
+// Eliminar pedido del cliente
 function eliminarPedidoCliente() {
     let posicion_cliente;
+    let posicion_pedido;
+    let eliminar = new Boolean;
 
-    posicion_cliente = seleccionDeCliente(interaccionPedidos, "De que cliente va a eliminar el pedido?");
+    posicion_cliente = seleccionDeCliente("De que cliente va a eliminar el pedido?");
 
-    if (opcionCancelar(posicion_cliente)) return interaccionPedidos();
+    if( opcionCancelar(posicion_cliente) ) return interaccionPedidos();
+    
+    if( comprobarPedidos(arreglo_de_clientes[posicion_cliente] )) {
+        posicion_pedido = seleccionPedido(arreglo_de_clientes[posicion_cliente], "¿Que pedido desea eliminar?");
 
-    console.log(arreglo_de_clientes[posicion_cliente].mostrarPedido());
+        if( opcionCancelar(posicion_pedido) ) return interaccionPedidos();
+        
+        eliminar = confirm(`El pedido a eliminar es\n${mostrarPedido(arreglo_de_clientes[posicion_cliente].pedidos[posicion_pedido])}\nEs correcto?`);
+    
+        if (eliminar) {
+            arreglo_de_clientes[posicion_cliente].pedidos.splice(posicion_pedido, 1);
+            alert("El pedido fue eliminado con exito");
+        } else {
+            alert("No se ha eliminado ningun pedido");
+        }
+    }
+
+    return interaccionPedidos();
+}
+
+function estadoPedidoCliente() {
+    let posicion_cliente;
+    let posicion_pedido;
+
+    posicion_cliente = seleccionDeCliente("De que cliente necesitas ver los pedidos?");
+
+    if( opcionCancelar(posicion_cliente) ) return interaccionPedidos();
+
+    if (comprobarPedidos(arreglo_de_clientes[posicion_cliente])) {
+        posicion_pedido = seleccionPedido(arreglo_de_clientes[posicion_cliente], "Seleccione el pedido del cual desea conocer su estado");
+        
+        if( opcionCancelar(posicion_pedido) ) return interaccionPedidos();
+
+        alert(`El pedido se encuentra ${arreglo_de_clientes[posicion_cliente].pedidos[posicion_pedido].estado}.`);
+    }
 
     return interaccionPedidos();
 }
@@ -433,7 +589,6 @@ function menuPrincipal() {
 
         1 - Cliente
         2 - Pedido
-        3 - Bagues
         0 - Salir`);
 }
 
@@ -461,16 +616,6 @@ function menuPedidos() {
         `)
 }
 
-function menuBagues() {
-    return prompt(`¿Que desea realizar en la seccion Bagues?
-
-        1 - Cargar pedido
-        2 - Pedidos pendientes
-        3 - Realizar un pago
-        0 - Volver al menu anterior
-        `)
-}
-
 function tipo_comprobantePago() {
     return prompt(`Ingrese el tipo de comprobante:
         1 - Adelanto
@@ -483,7 +628,7 @@ function tipo_comprobantePago() {
 // INTERACCIONES
 // Inicio de programa
 function inicio () {
-    let opcion = validarOpcion(menuPrincipal, 4);
+    let opcion = validarOpcion(menuPrincipal, 2);
 
     switch (opcion) {
         case 1:
@@ -491,10 +636,6 @@ function inicio () {
 
         case 2:
             return interaccionPedidos();
-
-        case 3:
-            /* return menuBagues(); */
-            return sinDesarrollar(inicio);
 
         case 0:
             return;
